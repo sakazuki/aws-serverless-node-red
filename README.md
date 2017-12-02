@@ -53,3 +53,4 @@ This guide assumes you have already [set up an AWS account](http://docs.aws.amaz
 ## Reference
 See the more details on how to customize an existing (or create a new) Node.js project based on this example. 
 - [aws-serverless-express](https://github.com/awslabs/aws-serverless-express)
+- [Qiita (Japanese)](https://qiita.com/sakazuki/private/9d55ac14432e73524e04)
