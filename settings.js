@@ -23,7 +23,7 @@ module.exports = {
     uiPort: process.env.PORT || 1880,
     awsRegion: 'YOUR_AWS_REGION',
     awsS3Bucket: 'YOUR_UNIQUE_BUCKET_NAME',
-    awsS3Appname: 'YOUR_SERVERLESS_EXPRESS_LAMBDA_FUNCTION_NAME',
+    awsS3Appname: 'YOUR_LAMBDA_FUNCTION_NAME',
     storageModule: require('node-red-contrib-storage-s3'),
     // By default, the Node-RED UI accepts connections on all IPv4 interfaces.
     // The following property can be used to listen on a specific interface. For
