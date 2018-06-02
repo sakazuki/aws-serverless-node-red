@@ -26,7 +26,8 @@ var settings = {
     awsS3Bucket: process.env.S3_BUCKET,
     awsS3Appname: process.env.AWS_LAMBDA_FUNCTION_NAME,
     storageModule: require('node-red-contrib-storage-s3'),
-    functionGlobalContext: { }
+    functionGlobalContext: { },
+    credentialSecret: process.env.NODE_RED_SECRET || "a-secret-key"
 };
 
 // NOTE: If you get ERR_CONTENT_DECODING_FAILED in your browser, this is likely
