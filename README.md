@@ -69,7 +69,7 @@ open the AWS CloudFormation console https://console.aws.amazon.com/cloudformatio
 
 ## Version
 - Node.js version 6.10
-- Node-RED version 0.18.2
+- Node-RED version 0.18.7
 
 ## Resource
 
