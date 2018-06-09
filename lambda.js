@@ -7,20 +7,12 @@ const compression = require('compression')
 const awsServerlessExpressMiddleware = require('aws-serverless-express/middleware')
 const app = express()
 const RED = require('node-red')
-const when = require('when');
 let server;
 
-let headless = process.env.HEADLESS || false
+let headless = (process.env.HEADLESS === "true") || false;
+let reloadFlow = (process.env.RELOAD_FLOW === "true") || false;
 
-var delay = (msec) => {
-  return when.promise((resolve) => {
-    setTimeout(() => {
-      resolve()
-    }, msec)
-  })
-}
-
-var settings = {
+let settings = {
     disableEditor: true,
     httpAdminRoot: false,
     httpNodeRoot: '/',
@@ -71,8 +63,7 @@ if (!headless) {
   server = awsServerlessExpress.createServer(app, null, binaryMimeTypes)
 }
 
-
-var init = (() => {
+let init = (() => {
   if (headless) {
     RED.init(settings)
   }else{
@@ -80,27 +71,47 @@ var init = (() => {
     //app.use(settings.httpAdminRoot,RED.httpAdmin);
     app.use(settings.httpNodeRoot,RED.httpNode);
   }
-  return RED.start().then(() => {
-    console.log('Node-RED server started.')
-    return delay(1000)
-  })
-
-})()
-
-exports.handler = (event, context, callback) => {
-  init.then(() => {
-    RED.nodes.loadFlows().then(()=>{
-      if (headless) {
-        RED.events.once('aws:lambda:done:' + context.awsRequestId, function(msg){
-          callback(null, msg);
-        })
-        RED.events.once('aws:lambda:error', function(msg){
-          callback(msg)
-        })
-        RED.events.emit('aws:lambda:invoke', event, context)
-      }else{
-        awsServerlessExpress.proxy(server, event, context)
+  return new Promise((resolve, reject) => {
+    let deployed;
+    RED.events.on("runtime-event", deployed = function(data){
+      if (data.id === "runtime-deploy") {
+        RED.events.removeListener("runtime-event", deployed);
+        // console.log('flow deployed');
+        resolve();
       }
     })
+    RED.start();
+  });
+})()
+
+function setup(){
+  return init.then(() => {
+    return new Promise((resolve, reject) => {
+      if (reloadFlow) {
+        RED.nodes.loadFlows().then(() => { resolve() });
+      }else{
+        resolve();
+      }
+    });
+  });
+}
+
+exports.handler = (event, context, callback) => {
+  setup().then(()=>{
+    if (headless) {
+      let handlers = {};
+      function clearHandlers(){
+        for(var key in handlers) RED.events.removeListener(key, handlers[key]);
+      }
+      function setHandlers(){
+        for(var key in handlers) RED.events.once(key, handlers[key]);
+      }
+      handlers['aws:lambda:done:' + context.awsRequestId] = function(msg){ clearHandlers(); callback(null, msg) };
+      handlers['aws:lambda:error'] = function(msg){ clearHandlers(); callback(msg) };
+      setHandlers();
+      RED.events.emit('aws:lambda:invoke', event, context)
+    }else{
+      awsServerlessExpress.proxy(server, event, context)
+    }
   })
 }
