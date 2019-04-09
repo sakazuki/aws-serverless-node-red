@@ -68,8 +68,8 @@ open the AWS CloudFormation console https://console.aws.amazon.com/cloudformatio
 6. If you would prefer to delete AWS assets that were just created, simply run `npm run delete-stack` to delete the CloudFormation Stack, including the API and Lambda Function. If you specified a new bucket in the `config` command for step 1 and want to delete that bucket, run `npm run delete-bucket`.
 
 ## Version
-- Node.js version 6.10
-- Node-RED version 0.18.7
+- Node.js version 8.12
+- Node-RED version 0.20.5
 
 ## Resource
 
